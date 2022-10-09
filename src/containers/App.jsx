@@ -15,14 +15,12 @@ class App extends React.Component {
   componentDidMount() {}
 
   render() {
-    // console.log(this.props);
-
     return (
       <div className="App">
         <Navigation />
         <Logo />
         <ImageLink />
-        <FaceDetect />
+        {/* <FaceDetect /> */}
       </div>
     );
   }

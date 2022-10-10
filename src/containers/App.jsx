@@ -6,7 +6,7 @@ import Clarifai from 'clarifai';
 import Navigation from '../components/navigation/navigation.comp';
 import Logo from '../components/logo/logo.comp';
 import ImageLink from '../components/image-link/image-link.comp';
-import FaceDetect from '../components/face-detect.comp';
+import FaceDetect from '../components/face-detect/face-detect.comp';
 
 // style
 import 'tachyons';
@@ -29,13 +29,37 @@ const clarifaiApp = new Clarifai.App({
   apiKey: process.env.REACT_APP_CLARIFAI_KEY
 });
 
+const calculateFaceLocation = data => {
+  const boundingBox = data.outputs[0].data.regions[0].region_info.bounding_box;
+
+  const left = Number(boundingBox.left_col) * 100;
+  const right = 100 - Number(boundingBox.right_col) * 100;
+  const bottom = 100 - Number(boundingBox.bottom_row) * 100;
+  const top = Number(boundingBox.top_row) * 100;
+
+  return {
+    top,
+    bottom,
+    left,
+    right
+  };
+};
+
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       input: '',
-      imgSrc:
-        'https://img.freepik.com/premium-photo/closeup-woman-face-contour-highlight-makeup-sample-professional-contouring-face-white-background_431835-2836.jpg'
+      imgUrl: '',
+      box: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      }
+      // https://img.freepik.com/premium-photo/closeup-woman-face-contour-highlight-makeup-sample-professional-contouring-face-white-background_431835-2836.jpg
+      // https://i.pinimg.com/originals/ac/e5/b6/ace5b63937f20c73ef9cf163568c82bc.jpg
+      // https://i2-prod.mirror.co.uk/incoming/article5428573.ece/ALTERNATES/s615b/archetypal-female-_3249633c.jpg
     };
     this.onInputChange = this.onInputChange.bind(this);
     this.onSubmitLink = this.onSubmitLink.bind(this);
@@ -53,28 +77,19 @@ class App extends React.Component {
   onSubmitLink(ev) {
     ev.preventDefault();
 
-    const { input, imgSrc } = this.state;
+    const { input } = this.state;
 
-    console.log(ev.type);
-    // this.setState({ imgLink: input });
+    this.setState({ imgUrl: input });
 
     clarifaiApp.models
-      .predict(
-        // .predict('53e1df302c079b3db8a0a36033ed2d15', this.state.input)
-        // 'a403429f2ddf4b49b307e318f00e528b',
-        // Clarifai.FACE_DETECTION_MODEL, - multiple
-        Clarifai.FACE_DETECT_MODEL,
-        imgSrc
-      )
-      .then(resp => {
-        console.log(resp);
-      })
+      .predict(Clarifai.FACE_DETECT_MODEL, input)
+      .then(resp => this.setState({ box: calculateFaceLocation(resp) }))
       .catch(console.error);
   }
 
   render() {
-    const { input, imgSrc } = this.state;
-
+    const { input, imgUrl, box } = this.state;
+    console.log(box);
     return (
       <div className="App">
         <Particles className="particles" params={particleOpts} />
@@ -85,7 +100,7 @@ class App extends React.Component {
           onSubmitLink={this.onSubmitLink}
           input={input}
         />
-        <FaceDetect imgSrc={imgSrc} />
+        <FaceDetect imgUrl={imgUrl} box={box} />
       </div>
     );
   }

@@ -5,7 +5,9 @@ import Clarifai from 'clarifai';
 //
 import Navigation from '../components/navigation/navigation.comp';
 import SignIn from '../components/sign-in/sign-in.comp';
+import Register from '../components/register/register.comp';
 import Logo from '../components/logo/logo.comp';
+import Rank from '../components/rank/rank.comp';
 import ImageLink from '../components/image-link/image-link.comp';
 import FaceDetect from '../components/face-detect/face-detect.comp';
 
@@ -100,15 +102,15 @@ class App extends React.Component {
     const { input, imgUrl, box, route } = this.state;
 
     console.log(route);
+
     return (
       <div className="App">
         <Particles className="particles" params={particleOpts} />
         <Navigation route={route} onRouteChange={this.onRouteChange} />
-
-        {route === 'signin' ? (
-          <SignIn onRouteChange={this.onRouteChange} />
-        ) : (
+        {// eslint-disable-next-line
+        route === 'home' ? (
           <>
+            <Rank />
             <Logo />
             <ImageLink
               onInputChange={this.onInputChange}
@@ -117,6 +119,13 @@ class App extends React.Component {
             />
             <FaceDetect imgUrl={imgUrl} box={box} />
           </>
+        ) : route === 'register' ? (
+          <Register
+            loadUser={this.loadUser}
+            onRouteChange={this.onRouteChange}
+          />
+        ) : (
+          <SignIn onRouteChange={this.onRouteChange} />
         )}
       </div>
     );

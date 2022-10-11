@@ -4,6 +4,7 @@ import Particles from 'react-particles-js';
 import Clarifai from 'clarifai';
 //
 import Navigation from '../components/navigation/navigation.comp';
+import SignIn from '../components/sign-in/sign-in.comp';
 import Logo from '../components/logo/logo.comp';
 import ImageLink from '../components/image-link/image-link.comp';
 import FaceDetect from '../components/face-detect/face-detect.comp';
@@ -56,15 +57,19 @@ class App extends React.Component {
         right: 0,
         bottom: 0,
         left: 0
-      }
+      },
+      route: 'signin'
+
       // https://img.freepik.com/premium-photo/closeup-woman-face-contour-highlight-makeup-sample-professional-contouring-face-white-background_431835-2836.jpg
       // https://i.pinimg.com/originals/ac/e5/b6/ace5b63937f20c73ef9cf163568c82bc.jpg
       // https://i2-prod.mirror.co.uk/incoming/article5428573.ece/ALTERNATES/s615b/archetypal-female-_3249633c.jpg
     };
     this.onInputChange = this.onInputChange.bind(this);
     this.onSubmitLink = this.onSubmitLink.bind(this);
+    this.onRouteChange = this.onRouteChange.bind(this);
   }
   //
+
   // componentDidMount() {}
 
   onInputChange(ev) {
@@ -87,20 +92,32 @@ class App extends React.Component {
       .catch(console.error);
   }
 
+  onRouteChange(route) {
+    this.setState({ route });
+  }
+
   render() {
-    const { input, imgUrl, box } = this.state;
-    console.log(box);
+    const { input, imgUrl, box, route } = this.state;
+
+    console.log(route);
     return (
       <div className="App">
         <Particles className="particles" params={particleOpts} />
-        <Navigation />
-        <Logo />
-        <ImageLink
-          onInputChange={this.onInputChange}
-          onSubmitLink={this.onSubmitLink}
-          input={input}
-        />
-        <FaceDetect imgUrl={imgUrl} box={box} />
+        <Navigation route={route} onRouteChange={this.onRouteChange} />
+
+        {route === 'signin' ? (
+          <SignIn onRouteChange={this.onRouteChange} />
+        ) : (
+          <>
+            <Logo />
+            <ImageLink
+              onInputChange={this.onInputChange}
+              onSubmitLink={this.onSubmitLink}
+              input={input}
+            />
+            <FaceDetect imgUrl={imgUrl} box={box} />
+          </>
+        )}
       </div>
     );
   }

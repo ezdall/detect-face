@@ -1,8 +1,7 @@
 import React from 'react';
 
-
 export default function Rank(props) {
-  const { entries, name} = props
+  const { entries, name } = props;
 
   return (
     <div>

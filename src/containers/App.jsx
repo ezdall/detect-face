@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 import Particles from 'react-particles-js';
 import Clarifai from 'clarifai';
@@ -12,7 +13,6 @@ import ImageLink from '../components/image-link/image-link.comp';
 import FaceDetect from '../components/face-detect/face-detect.comp';
 
 // style
-import 'tachyons';
 import './App.css';
 
 const particleOpts = {
@@ -32,8 +32,8 @@ const clarifaiApp = new Clarifai.App({
   apiKey: process.env.REACT_APP_CLARIFAI_KEY
 });
 
-const calculateFaceLocation = data => {
-  const boundingBox = data.outputs[0].data.regions[0].region_info.bounding_box;
+const calculateFaceLocation = outputs => {
+  const boundingBox = outputs[0].data.regions[0].region_info.bounding_box;
 
   const left = Number(boundingBox.left_col) * 100;
   const right = 100 - Number(boundingBox.right_col) * 100;
@@ -48,6 +48,7 @@ const calculateFaceLocation = data => {
   };
 };
 
+//
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -77,6 +78,8 @@ class App extends React.Component {
     this.onSubmitLink = this.onSubmitLink.bind(this);
     this.onRouteChange = this.onRouteChange.bind(this);
     this.loadUser = this.loadUser.bind(this);
+    this.onImageError = this.onImageError.bind(this);
+    this.onImageLoad = this.onImageLoad.bind(this);
   }
 
   // componentDidMount() {}
@@ -84,7 +87,6 @@ class App extends React.Component {
   onInputChange(ev) {
     const { value } = ev.target;
 
-    // console.log(ev.type);
     this.setState({ input: value });
   }
 
@@ -93,12 +95,61 @@ class App extends React.Component {
 
     const { input } = this.state;
 
-    this.setState({ imgUrl: input });
+    this.setState({
+      imgUrl: input,
+      // reset box
+      box: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      }
+    });
+  }
 
-    clarifaiApp.models
+  onImageLoad() {
+    const { input, user } = this.state;
+
+    return clarifaiApp.models
       .predict(Clarifai.FACE_DETECT_MODEL, input)
-      .then(resp => this.setState({ box: calculateFaceLocation(resp) }))
+      .then(resp => {
+        const { status, outputs } = resp;
+
+        // code:10000, desc: 'ok'
+        if (status.code === 10000) {
+          axios
+            .patch('http://localhost:3000/image', {
+              input,
+              email: user.email
+            })
+            .then(resp2 => {
+              const { entries } = resp2.data;
+
+              // 2nd-level-obj is not auto-spread
+              // in this.setState
+              this.setState({
+                user: {
+                  ...user,
+                  entries
+                }
+              });
+            })
+            .catch(console.log);
+          this.setState({ box: calculateFaceLocation(outputs) });
+        }
+      })
       .catch(console.error);
+  }
+
+  onImageError() {
+    this.setState({
+      box: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      }
+    });
   }
 
   onRouteChange(route) {
@@ -121,7 +172,7 @@ class App extends React.Component {
   render() {
     const { input, imgUrl, box, route, user } = this.state;
 
-    console.log(user);
+    // console.log(user);
 
     return (
       <div className="App">
@@ -130,14 +181,19 @@ class App extends React.Component {
         {// eslint-disable-next-line
         route === 'home' ? (
           <>
-            <Rank />
+            <Rank entries={user.entries} name={user.name} />
             <Logo />
             <ImageLink
               onInputChange={this.onInputChange}
               onSubmitLink={this.onSubmitLink}
               input={input}
             />
-            <FaceDetect imgUrl={imgUrl} box={box} />
+            <FaceDetect
+              onImageLoad={this.onImageLoad}
+              onImageError={this.onImageError}
+              imgUrl={imgUrl}
+              box={box}
+            />
           </>
         ) : route === 'register' ? (
           <Register

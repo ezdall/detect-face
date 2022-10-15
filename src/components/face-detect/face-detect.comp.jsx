@@ -6,10 +6,10 @@ import './face-detect.css';
 export default function FaceDetect(props) {
   const {
     imgUrl,
+    onImageError,
+    onImageLoad,
     box: { top, bottom, right, left }
   } = props;
-
-  console.log({ top, bottom, right, left });
 
   return (
     <div className="center ma">
@@ -20,6 +20,8 @@ export default function FaceDetect(props) {
           alt="face"
           width="600px"
           height="auto"
+          onError={onImageError}
+          onLoad={onImageLoad}
         />
         <div
           className="bounding-box"

@@ -1,10 +1,12 @@
 import React from 'react';
 import './image-link.css';
 
-export default function ImageLink({ onInputChange, onSubmitLink, input }) {
+export default function ImageLink(props) {
+  const { onInputChange, onSubmitLink, input } = props;
+
   return (
     <div>
-      <p className="f3">This app will detect face in a picture</p>
+      <p className="f3">This app will detect faces in the picture</p>
 
       <div className="center">
         <div className="css-pattern center pa4 br3 shadow-5">
@@ -15,12 +17,7 @@ export default function ImageLink({ onInputChange, onSubmitLink, input }) {
             placeholder="Enter image link/source"
             onChange={onInputChange}
             value={input}
-            onKeyDown={ev => {
-              if (ev.key !== 'Enter') {
-                return null;
-              }
-              return onSubmitLink(ev);
-            }}
+            onKeyDown={ev => ev.key === 'Enter' && onSubmitLink(ev)}
           />
           <button
             type="button"

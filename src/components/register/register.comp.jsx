@@ -10,7 +10,7 @@ export default class Register extends React.Component {
       password: ''
     };
     this.onInputChange = this.onInputChange.bind(this);
-    this.onSubmitSignIn = this.onSubmitSignIn.bind(this);
+    this.onSubmitRegister = this.onSubmitRegister.bind(this);
   }
 
   onInputChange(ev) {
@@ -19,23 +19,28 @@ export default class Register extends React.Component {
     this.setState({ [name]: value });
   }
 
-  onSubmitSignIn(ev) {
+  onSubmitRegister(ev) {
     ev.preventDefault();
 
     const { name, email, password } = this.state;
-    const { onRouteChange, loadUser } = this.props;
+    const { onRouteChange } = this.props;
+
+    if (!name || !email || !password) {
+      return;
+    }
 
     axios
-      .post('http://localhost:3000/register', {
+      .post(`${process.env.REACT_APP_API_URL}/register`, {
         name,
         email,
         password
       })
       .then(resp => {
-        const { user } = resp.data;
+        // const { user } = resp.data;
+        console.log(resp);
 
-        loadUser(user);
-        onRouteChange('home');
+        // loadUser(user);
+        onRouteChange('signin');
       })
       .catch(error => {
         console.log(error);
@@ -76,6 +81,7 @@ export default class Register extends React.Component {
                   id="email-address"
                   onChange={this.onInputChange}
                   value={email}
+                  required
                 />
               </div>
               <div className="mv3">
@@ -89,6 +95,7 @@ export default class Register extends React.Component {
                   id="password"
                   onChange={this.onInputChange}
                   value={password}
+                  required
                 />
               </div>
             </fieldset>
@@ -96,7 +103,7 @@ export default class Register extends React.Component {
               <input
                 className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                 type="submit"
-                onClick={this.onSubmitSignIn}
+                onClick={this.onSubmitRegister}
                 value="Register"
               />
             </div>

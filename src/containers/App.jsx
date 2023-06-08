@@ -1,8 +1,10 @@
 import React from 'react';
+
 //
-// import SearchBox from '../components/search-box.comp';
-// import CardList from '../components/card-list.comp';
-// import ErrorBoundry from '../components/error-boundry.comp';
+import Navigation from '../components/navigation.comp';
+import Logo from '../components/logo.comp';
+import ImageLink from '../components/image-link.comp';
+import FaceDetect from '../components/face-detect.comp';
 
 // style
 import './App.css';
@@ -14,7 +16,14 @@ class App extends React.Component {
   render() {
     // console.log(this.props);
 
-    return <div>App</div>;
+    return (
+      <div className="App">
+        <Navigation />
+        <Logo />
+        <ImageLink />
+        <FaceDetect />
+      </div>
+    );
   }
 }
 export default App;

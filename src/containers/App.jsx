@@ -60,7 +60,14 @@ class App extends React.Component {
         bottom: 0,
         left: 0
       },
-      route: 'signin'
+      route: 'signin',
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: '',
+        joined: ''
+      }
 
       // https://img.freepik.com/premium-photo/closeup-woman-face-contour-highlight-makeup-sample-professional-contouring-face-white-background_431835-2836.jpg
       // https://i.pinimg.com/originals/ac/e5/b6/ace5b63937f20c73ef9cf163568c82bc.jpg
@@ -69,8 +76,8 @@ class App extends React.Component {
     this.onInputChange = this.onInputChange.bind(this);
     this.onSubmitLink = this.onSubmitLink.bind(this);
     this.onRouteChange = this.onRouteChange.bind(this);
+    this.loadUser = this.loadUser.bind(this);
   }
-  //
 
   // componentDidMount() {}
 
@@ -98,10 +105,23 @@ class App extends React.Component {
     this.setState({ route });
   }
 
-  render() {
-    const { input, imgUrl, box, route } = this.state;
+  loadUser(data) {
+    this.setState({
+      user: {
+        // eslint-disable-next-line
+        id: data._id,
+        name: data.name,
+        email: data.email,
+        entries: data.history.length,
+        joined: data.createdAt
+      }
+    });
+  }
 
-    console.log(route);
+  render() {
+    const { input, imgUrl, box, route, user } = this.state;
+
+    console.log(user);
 
     return (
       <div className="App">
@@ -125,7 +145,7 @@ class App extends React.Component {
             onRouteChange={this.onRouteChange}
           />
         ) : (
-          <SignIn onRouteChange={this.onRouteChange} />
+          <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
         )}
       </div>
     );

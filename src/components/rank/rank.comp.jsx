@@ -1,10 +1,13 @@
 import React from 'react';
 
-export default function Rank() {
+
+export default function Rank(props) {
+  const { entries, name} = props
+
   return (
     <div>
-      <div className="white f3">Light, you current rank is:</div>
-      <div className="white f1">#5</div>
+      <div className="white f3">{name}, your entry count is:</div>
+      <div className="white f1">#{entries}</div>
     </div>
   );
 }

@@ -48,9 +48,12 @@ export default class Signin extends React.Component {
     const { onRouteChange } = this.props;
     const { email, password } = this.state;
 
+    // bg-hover-black is block
+    // by bootstrap bg-transparent-!important
+
     return (
-      <article className="br3 ba b--black-10 mv4 w-100 w-50-m mw6  center shadow-5">
-        <main className="pa4 black-80">
+      <article className="br3 ba b--black-10 mv4 w-100 w-50-m mw6 center shadow-5">
+        <main className="pa5 black-80">
           <form className="measure">
             <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
               <legend className="f1 fw6 ph0 mh0">Sign In</legend>

@@ -23,6 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # my
+src/bootstrap.min.css
 .eslintrc
 .eslintrc.json
 .prettierrc

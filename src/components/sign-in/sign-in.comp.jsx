@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 
+import { axiosErrorHandler } from '../../axios-error-handler';
+
 export default class Signin extends React.Component {
   constructor(props) {
     super(props);
@@ -15,8 +17,7 @@ export default class Signin extends React.Component {
   onInputChange(ev) {
     const { value, name } = ev.target;
 
-    console.log(name, value);
-
+    // console.log(name, value);
     this.setState({ [name]: value });
   }
 
@@ -26,20 +27,29 @@ export default class Signin extends React.Component {
     const { email, password } = this.state;
     const { onRouteChange, loadUser } = this.props;
 
+    if (!email || !password) {
+      return;
+    }
+
     axios
-      .post('http://localhost:3000/signin', {
+      .post(`${process.env.REACT_APP_API_URL}/signin`, {
         email,
         password
       })
-
       .then(resp => {
-        const { user } = resp.data;
+        const { data, status } = resp;
+        const { user, token } = data;
 
-        loadUser(user);
-        onRouteChange('home');
+        if (status === 200) {
+          loadUser(user);
+          onRouteChange('home');
+          // set token
+          window.sessionStorage.setItem('t-jwt', token);
+        }
       })
       .catch(error => {
-        console.log(error);
+        axiosErrorHandler(error);
+
         this.setState({ email: '', password: '' });
       });
   }
@@ -68,6 +78,7 @@ export default class Signin extends React.Component {
                   id="email-address"
                   onChange={this.onInputChange}
                   value={email}
+                  required
                 />
               </div>
               <div className="mv3">
@@ -81,6 +92,7 @@ export default class Signin extends React.Component {
                   id="password"
                   onChange={this.onInputChange}
                   value={password}
+                  required
                 />
               </div>
             </fieldset>

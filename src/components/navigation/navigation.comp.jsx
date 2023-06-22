@@ -8,7 +8,7 @@ export default function Navigation(props) {
       {/* eslint-disable-next-line  */}
       {route === 'home' ? ( // eslint-disable-next-line
         <p
-          onClick={() => onRouteChange('signin')}
+          onClick={() => onRouteChange('signout')}
           className="f3 link dim black underline pa3 pointer"
         >
           Sign Out

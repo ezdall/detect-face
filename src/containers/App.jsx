@@ -1,9 +1,10 @@
 import React from 'react';
-import axios from 'axios';
 
 import Particles from 'react-particles-js';
 import Clarifai from 'clarifai';
-//
+import axios from 'axios';
+
+// comp
 import Navigation from '../components/navigation/navigation.comp';
 import SignIn from '../components/sign-in/sign-in.comp';
 import Register from '../components/register/register.comp';
@@ -11,6 +12,9 @@ import Logo from '../components/logo/logo.comp';
 import Rank from '../components/rank/rank.comp';
 import ImageLink from '../components/image-link/image-link.comp';
 import FaceDetect from '../components/face-detect/face-detect.comp';
+
+// utils
+import { axiosErrorHandler } from '../axios-error-handler';
 
 // style
 import './App.css';
@@ -48,8 +52,28 @@ const calculateFaceLocation = outputs => {
   };
 };
 
+// initial state
+const inititalState = {
+  input: '',
+  imgUrl: '',
+  box: {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+  },
+  route: 'signin',
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    entries: '',
+    joined: ''
+  }
+};
+
 //
-class App extends React.Component {
+export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -69,7 +93,6 @@ class App extends React.Component {
         entries: '',
         joined: ''
       }
-
       // https://img.freepik.com/premium-photo/closeup-woman-face-contour-highlight-makeup-sample-professional-contouring-face-white-background_431835-2836.jpg
       // https://i.pinimg.com/originals/ac/e5/b6/ace5b63937f20c73ef9cf163568c82bc.jpg
       // https://i2-prod.mirror.co.uk/incoming/article5428573.ece/ALTERNATES/s615b/archetypal-female-_3249633c.jpg
@@ -82,7 +105,35 @@ class App extends React.Component {
     this.onImageLoad = this.onImageLoad.bind(this);
   }
 
-  // componentDidMount() {}
+  componentDidMount() {
+    // check here for token
+
+    const token = window.sessionStorage.getItem('t-jwt');
+
+    if (token) {
+      // login thru token
+      axios
+        .post(
+          `${process.env.REACT_APP_API_URL}/signin`,
+          {}, // empty body. im using token to login
+          {
+            headers: {
+              authorization: `Bearer ${token}`
+            }
+          }
+        )
+        .then(resp => {
+          const { data, status } = resp;
+          const { user } = data;
+
+          if (status === 200) {
+            this.loadUser(user);
+            this.onRouteChange('home');
+          }
+        })
+        .catch(axiosErrorHandler);
+    }
+  }
 
   onInputChange(ev) {
     const { value } = ev.target;
@@ -118,7 +169,7 @@ class App extends React.Component {
         // code:10000, desc: 'ok'
         if (status.code === 10000) {
           axios
-            .patch('http://localhost:3000/image', {
+            .patch(`${process.env.REACT_APP_API_URL}/image`, {
               input,
               email: user.email
             })
@@ -153,6 +204,12 @@ class App extends React.Component {
   }
 
   onRouteChange(route) {
+    // reset
+    if (route === 'signout') {
+      // return, bcoz it changes route
+      window.sessionStorage.removeItem('t-jwt');
+      this.setState(inititalState);
+    }
     this.setState({ route });
   }
 
@@ -207,4 +264,3 @@ class App extends React.Component {
     );
   }
 }
-export default App;

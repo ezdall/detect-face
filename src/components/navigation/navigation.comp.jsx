@@ -5,15 +5,15 @@ export default function Navigation(props) {
 
   return (
     <nav style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      {/* eslint-disable-next-line  */}
-      {route === 'home' ? ( // eslint-disable-next-line
+      {/* eslint-disable  */}
+      {route === 'home' ? (
         <p
           onClick={() => onRouteChange('signout')}
           className="f3 link dim black underline pa3 pointer"
         >
           Sign Out
         </p>
-      ) : route === 'register' ? ( // eslint-disable-next-line
+      ) : route === 'register' ? (
         <p
           onClick={() => onRouteChange('signin')}
           className="f3 link dim black underline pa3 pointer"
@@ -21,7 +21,6 @@ export default function Navigation(props) {
           Sign In
         </p>
       ) : (
-        // eslint-disable-next-line
         <p
           onClick={() => onRouteChange('register')}
           className="f3 link dim black underline pa3 pointer"

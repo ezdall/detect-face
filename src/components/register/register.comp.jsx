@@ -25,7 +25,8 @@ export default class Register extends React.Component {
     const { name, email, password } = this.state;
     const { onRouteChange } = this.props;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || password.length < 5) {
+      console.error('error input');
       return;
     }
 
@@ -35,11 +36,10 @@ export default class Register extends React.Component {
         email,
         password
       })
-      .then(resp => {
-        // const { user } = resp.data;
-        console.log(resp);
+      .then(() => {
+        // if you want to auto-login after register
+        // loadUser(resp.data.user);
 
-        // loadUser(user);
         onRouteChange('signin');
       })
       .catch(error => {
@@ -68,6 +68,7 @@ export default class Register extends React.Component {
                   id="name"
                   onChange={this.onInputChange}
                   value={name}
+                  placeholder="(optional)"
                 />
               </div>
               <div className="mt3">
@@ -82,6 +83,7 @@ export default class Register extends React.Component {
                   onChange={this.onInputChange}
                   value={email}
                   required
+                  placeholder="sample@g.c"
                 />
               </div>
               <div className="mv3">
@@ -96,6 +98,7 @@ export default class Register extends React.Component {
                   onChange={this.onInputChange}
                   value={password}
                   required
+                  placeholder="at least 5 chars"
                 />
               </div>
             </fieldset>

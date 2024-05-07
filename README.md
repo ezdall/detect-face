@@ -1,8 +1,8 @@
 # Face Detect
 
 - react
-- redux - @reduxjs/toolkit
+- redux
 - react-redux
-- bootstrap
+- tachyons
 - eslint, airbnb, prettier - formatter
 - gh-pages - deploy

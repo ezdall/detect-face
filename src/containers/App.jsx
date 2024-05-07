@@ -1,7 +1,6 @@
 import React from 'react';
 
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
 import axios from 'axios';
 
 // comp
@@ -19,6 +18,8 @@ import { axiosErrorHandler } from '../axios-error-handler';
 // style
 import './App.css';
 
+/* eslint-disable camelcase, no-underscore-dangle  */
+
 const particleOpts = {
   particles: {
     number: {
@@ -31,27 +32,16 @@ const particleOpts = {
   }
 };
 
-// clarifai
-const clarifaiApp = new Clarifai.App({
-  apiKey: process.env.REACT_APP_CLARIFAI_KEY
-  // apiKey: '3cc0ce0cb8ac415c9965bf3eaa387aa4'
-});
-
-const calculateFaceLocation = outputs => {
-  // console.log(outputs);
+const calculateFaceLocation = data => {
   // const boundingBox = outputs[0].data.regions[0].region_info.bounding_box;
-
-  // const dataFaces =
-
   // const left = Number(boundingBox.left_col) * 100;
   // const right = 100 - Number(boundingBox.right_col) * 100;
   // const bottom = 100 - Number(boundingBox.bottom_row) * 100;
   // const top = Number(boundingBox.top_row) * 100;
 
-  const { regions } = outputs[0].data;
+  const { regions } = data;
 
   const mapRegions = regions.map(r => {
-    // eslint-disable-next-line
     const {
       left_col,
       right_col,
@@ -109,9 +99,6 @@ export default class App extends React.Component {
         entries: '',
         joined: ''
       }
-      // https://img.freepik.com/premium-photo/closeup-woman-face-contour-highlight-makeup-sample-professional-contouring-face-white-background_431835-2836.jpg
-      // https://i.pinimg.com/originals/ac/e5/b6/ace5b63937f20c73ef9cf163568c82bc.jpg
-      // https://i2-prod.mirror.co.uk/incoming/article5428573.ece/ALTERNATES/s615b/archetypal-female-_3249633c.jpg
     };
     this.onInputChange = this.onInputChange.bind(this);
     this.onSubmitLink = this.onSubmitLink.bind(this);
@@ -178,38 +165,39 @@ export default class App extends React.Component {
   onImageLoad() {
     const { input, user } = this.state;
 
-    return (
-      clarifaiApp.models
-        // 'c0c0ac362b03416da06ab3fa36fb58e3'
-        .predict(Clarifai.FACE_DETECT_MODEL, input)
-        .then(resp => {
-          const { status, outputs } = resp;
+    // todo []  add space remover for input 'url', in <input>
 
-          // code:10000, desc: 'ok'
-          if (status.code === 10000) {
-            axios
-              .patch(`${process.env.REACT_APP_API_URL}/image`, {
-                input,
-                email: user.email
-              })
-              .then(resp2 => {
-                const { entries } = resp2.data;
+    return axios
+      .post(`${process.env.REACT_APP_API_URL}/image-url`, { input })
+      .then(resp => {
+        const { status, data } = resp.data;
 
-                // 2nd-level-obj is not auto-spread
-                // in this.setState
-                this.setState({
-                  user: {
-                    ...user,
-                    entries
-                  }
-                });
-              })
-              .catch(console.log);
-            this.setState({ box: calculateFaceLocation(outputs) });
-          }
-        })
-        .catch(console.error)
-    );
+        // code:10000, desc: 'ok'
+        if (status.code === 10000) {
+          // add to history
+          axios
+            .patch(`${process.env.REACT_APP_API_URL}/image`, {
+              input,
+              email: user.email
+            })
+            .then(resp2 => {
+              const { entries } = resp2.data;
+
+              // 2nd-level-obj is not auto-spread
+              // in this.setState, do manual ...spread
+              this.setState({
+                user: {
+                  ...user,
+                  entries
+                }
+              });
+            })
+            .catch(error => console.log(error));
+
+          this.setState({ boxes: calculateFaceLocation(data) });
+        }
+      })
+      .catch(err => console.error(err));
   }
 
   onImageError() {
@@ -226,8 +214,7 @@ export default class App extends React.Component {
   onRouteChange(route) {
     // reset
     if (route === 'signout') {
-      // return, bcoz it changes route
-      window.sessionStorage.removeItem('t-jwt');
+      window?.sessionStorage?.removeItem('t-jwt');
       this.setState(inititalState);
     }
     this.setState({ route });
@@ -236,7 +223,6 @@ export default class App extends React.Component {
   loadUser(data) {
     this.setState({
       user: {
-        // eslint-disable-next-line
         id: data._id,
         name: data.name,
         email: data.email,
@@ -248,8 +234,6 @@ export default class App extends React.Component {
 
   render() {
     const { input, imgUrl, box, boxes, route, user } = this.state;
-
-    // console.log(user);
 
     return (
       <div className="App">

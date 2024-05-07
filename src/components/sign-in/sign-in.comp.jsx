@@ -79,6 +79,7 @@ export default class Signin extends React.Component {
                   onChange={this.onInputChange}
                   value={email}
                   required
+                  placeholder="guest@gmail.com"
                 />
               </div>
               <div className="mv3">
@@ -93,6 +94,7 @@ export default class Signin extends React.Component {
                   onChange={this.onInputChange}
                   value={password}
                   required
+                  placeholder="guest"
                 />
               </div>
             </fieldset>

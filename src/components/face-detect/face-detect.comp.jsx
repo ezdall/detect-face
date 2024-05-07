@@ -1,6 +1,5 @@
 import React from 'react';
 
-// css
 import './face-detect.css';
 
 export default function FaceDetect(props) {
@@ -8,7 +7,7 @@ export default function FaceDetect(props) {
     imgUrl,
     onImageError,
     onImageLoad,
-    box: { top, bottom, right, left },
+    // box: { top, bottom, right, left }, // for single
     boxes
   } = props;
 

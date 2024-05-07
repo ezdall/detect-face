@@ -8,7 +8,8 @@ export default function FaceDetect(props) {
     imgUrl,
     onImageError,
     onImageLoad,
-    box: { top, bottom, right, left }
+    box: { top, bottom, right, left },
+    boxes
   } = props;
 
   return (
@@ -23,15 +24,20 @@ export default function FaceDetect(props) {
           onError={onImageError}
           onLoad={onImageLoad}
         />
-        <div
-          className="bounding-box"
-          style={{
-            top: `${top}%`,
-            right: `${right}%`,
-            bottom: `${bottom}%`,
-            left: `${left}%`
-          }}
-        />
+        {boxes.map(bx => {
+          return (
+            <div
+              key={bx.id}
+              className="bounding-box"
+              style={{
+                top: `${bx.top}%`,
+                right: `${bx.right}%`,
+                bottom: `${bx.bottom}%`,
+                left: `${bx.left}%`
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

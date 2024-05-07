@@ -34,34 +34,49 @@ const particleOpts = {
 // clarifai
 const clarifaiApp = new Clarifai.App({
   apiKey: process.env.REACT_APP_CLARIFAI_KEY
+  // apiKey: '3cc0ce0cb8ac415c9965bf3eaa387aa4'
 });
 
 const calculateFaceLocation = outputs => {
-  const boundingBox = outputs[0].data.regions[0].region_info.bounding_box;
+  // console.log(outputs);
+  // const boundingBox = outputs[0].data.regions[0].region_info.bounding_box;
 
-  const left = Number(boundingBox.left_col) * 100;
-  const right = 100 - Number(boundingBox.right_col) * 100;
-  const bottom = 100 - Number(boundingBox.bottom_row) * 100;
-  const top = Number(boundingBox.top_row) * 100;
+  // const dataFaces =
 
-  return {
-    top,
-    bottom,
-    left,
-    right
-  };
+  // const left = Number(boundingBox.left_col) * 100;
+  // const right = 100 - Number(boundingBox.right_col) * 100;
+  // const bottom = 100 - Number(boundingBox.bottom_row) * 100;
+  // const top = Number(boundingBox.top_row) * 100;
+
+  const { regions } = outputs[0].data;
+
+  const mapRegions = regions.map(r => {
+    // eslint-disable-next-line
+    const {
+      left_col,
+      right_col,
+      bottom_row,
+      top_row
+    } = r.region_info.bounding_box;
+
+    return {
+      id: r.id,
+      top: +top_row * 100,
+      bottom: 100 - +bottom_row * 100,
+      left: +left_col * 100,
+      right: 100 - +right_col * 100
+    };
+  });
+
+  // return arr[{},{},{}]
+  return mapRegions;
 };
 
 // initial state
 const inititalState = {
   input: '',
   imgUrl: '',
-  box: {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
-  },
+  box: {},
   route: 'signin',
   user: {
     id: '',
@@ -79,6 +94,7 @@ export default class App extends React.Component {
     this.state = {
       input: '',
       imgUrl: '',
+      boxes: [],
       box: {
         top: 0,
         right: 0,
@@ -148,7 +164,8 @@ export default class App extends React.Component {
 
     this.setState({
       imgUrl: input,
-      // reset box
+      // reset box,
+      boxes: [],
       box: {
         top: 0,
         right: 0,
@@ -161,35 +178,38 @@ export default class App extends React.Component {
   onImageLoad() {
     const { input, user } = this.state;
 
-    return clarifaiApp.models
-      .predict(Clarifai.FACE_DETECT_MODEL, input)
-      .then(resp => {
-        const { status, outputs } = resp;
+    return (
+      clarifaiApp.models
+        // 'c0c0ac362b03416da06ab3fa36fb58e3'
+        .predict(Clarifai.FACE_DETECT_MODEL, input)
+        .then(resp => {
+          const { status, outputs } = resp;
 
-        // code:10000, desc: 'ok'
-        if (status.code === 10000) {
-          axios
-            .patch(`${process.env.REACT_APP_API_URL}/image`, {
-              input,
-              email: user.email
-            })
-            .then(resp2 => {
-              const { entries } = resp2.data;
+          // code:10000, desc: 'ok'
+          if (status.code === 10000) {
+            axios
+              .patch(`${process.env.REACT_APP_API_URL}/image`, {
+                input,
+                email: user.email
+              })
+              .then(resp2 => {
+                const { entries } = resp2.data;
 
-              // 2nd-level-obj is not auto-spread
-              // in this.setState
-              this.setState({
-                user: {
-                  ...user,
-                  entries
-                }
-              });
-            })
-            .catch(console.log);
-          this.setState({ box: calculateFaceLocation(outputs) });
-        }
-      })
-      .catch(console.error);
+                // 2nd-level-obj is not auto-spread
+                // in this.setState
+                this.setState({
+                  user: {
+                    ...user,
+                    entries
+                  }
+                });
+              })
+              .catch(console.log);
+            this.setState({ box: calculateFaceLocation(outputs) });
+          }
+        })
+        .catch(console.error)
+    );
   }
 
   onImageError() {
@@ -227,7 +247,7 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { input, imgUrl, box, route, user } = this.state;
+    const { input, imgUrl, box, boxes, route, user } = this.state;
 
     // console.log(user);
 
@@ -249,6 +269,7 @@ export default class App extends React.Component {
               onImageLoad={this.onImageLoad}
               onImageError={this.onImageError}
               imgUrl={imgUrl}
+              boxes={boxes}
               box={box}
             />
           </>

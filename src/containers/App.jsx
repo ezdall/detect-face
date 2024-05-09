@@ -163,12 +163,22 @@ export default class App extends React.Component {
   }
 
   onImageLoad() {
+    const token = window.sessionStorage.getItem('t-jwt');
+
     const { input, user } = this.state;
 
     // todo []  add space remover for input 'url', in <input>
 
     return axios
-      .post(`${process.env.REACT_APP_API_URL}/image-url`, { input })
+      .post(
+        `${process.env.REACT_APP_API_URL}/image-url`,
+        { input },
+        {
+          headers: {
+            authorization: `Bearer ${token}`
+          }
+        }
+      )
       .then(resp => {
         const { status, data } = resp.data;
 
@@ -176,10 +186,18 @@ export default class App extends React.Component {
         if (status.code === 10000) {
           // add to history
           axios
-            .patch(`${process.env.REACT_APP_API_URL}/image`, {
-              input,
-              email: user.email
-            })
+            .patch(
+              `${process.env.REACT_APP_API_URL}/image`,
+              {
+                input,
+                email: user.email
+              },
+              {
+                headers: {
+                  authorization: `Bearer ${token}`
+                }
+              }
+            )
             .then(resp2 => {
               const { entries } = resp2.data;
 

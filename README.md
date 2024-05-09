@@ -1,8 +1,14 @@
-# Face Detect
+## Face Detect App
 
-- react
-- redux
-- react-redux
+### Tech, Tools
+
+- react 17
 - tachyons
+- axios
+- redux toolkit
+- react-redux
+  <br/>
 - eslint, airbnb, prettier - formatter
-- gh-pages - deploy
+- react-particle-js
+- react-tilt
+- gh-pages onrender - deploy
